@@ -5,6 +5,7 @@ import {
   FileText, 
   SlidersHorizontal, 
   BarChart3,
+  Bot,
   Activity
 } from 'lucide-react';
 
@@ -12,10 +13,13 @@ const Navbar = () => {
   const location = useLocation();
   
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/apply', label: 'New Application', icon: FileText },
+    { path: '/chat', label: 'AI Chat', icon: Bot },
     { path: '/simulate', label: 'Simulator', icon: SlidersHorizontal },
     { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+    
+    
   ];
   
   return (
@@ -25,7 +29,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-800 rounded-xl flex items-center justify-center">
-              <Activity className="w-6 h-6 text-white" />
+              <Activity className="w-6 h-6 text-white"/>
             </div>
             <div>
               <h1 className="text-xl font-bold gradient-text">LiveRisk AI</h1>

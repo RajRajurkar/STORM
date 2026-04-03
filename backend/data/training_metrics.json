@@ -1,0 +1,58 @@
+{
+  "training_date": "2026-04-03T17:05:00.394816",
+  "best_classification_model": "logistic_regression",
+  "best_regression_model": "xgb_regressor",
+  "classification_metrics": {
+    "random_forest": {
+      "accuracy": 0.989,
+      "precision": 1.0,
+      "recall": 0.08333333333333333,
+      "f1_score": 0.15384615384615385,
+      "roc_auc": 0.9906060222672064,
+      "cv_mean": 0.989625,
+      "cv_std": 0.0004999999999999894
+    },
+    "xgboost": {
+      "accuracy": 0.9895,
+      "precision": 0.6363636363636364,
+      "recall": 0.2916666666666667,
+      "f1_score": 0.4,
+      "roc_auc": 0.9917130566801619,
+      "cv_mean": 0.992125,
+      "cv_std": 0.002256933760658476
+    },
+    "gradient_boosting": {
+      "accuracy": 0.9925,
+      "precision": 0.8461538461538461,
+      "recall": 0.4583333333333333,
+      "f1_score": 0.5945945945945945,
+      "roc_auc": 0.9898574561403509,
+      "cv_mean": 0.9884999999999999,
+      "cv_std": 0.0025495097567963913
+    },
+    "logistic_regression": {
+      "accuracy": 0.992,
+      "precision": 0.7222222222222222,
+      "recall": 0.5416666666666666,
+      "f1_score": 0.619047619047619,
+      "roc_auc": 0.9942012483130904,
+      "cv_mean": 0.993,
+      "cv_std": 0.0019921721813136637
+    }
+  },
+  "regression_metrics": {
+    "rf_regressor": {
+      "mse": 0.0017198631421940452,
+      "rmse": 0.04147123270646829,
+      "mae": 0.03256317059996063,
+      "r2": 0.8776868526264696
+    },
+    "xgb_regressor": {
+      "mse": 0.001263731130510131,
+      "rmse": 0.03554899619553457,
+      "mae": 0.028003336816410304,
+      "r2": 0.9101260279295152
+    }
+  },
+  "feature_importance": null
+}

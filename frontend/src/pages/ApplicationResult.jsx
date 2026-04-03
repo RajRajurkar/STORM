@@ -21,6 +21,7 @@ import FutureRiskChart from '../components/FutureRiskChart';
 import { RISK_COLORS, STP_COLORS } from '../utils/constants';
 
 const ApplicationResult = () => {
+  const USD_TO_INR = 92;
   const location = useLocation();
   const navigate = useNavigate();
   const { result, application } = location.state || {};
@@ -175,7 +176,7 @@ const ApplicationResult = () => {
                     <div>
                       <p className="text-sm text-gray-500">Annual Premium</p>
                       <p className="text-lg font-bold text-blue-600">
-                        ${premium.final_premium.toLocaleString()}
+                        ₹{(premium.final_premium * USD_TO_INR).toLocaleString("en-IN")}
                       </p>
                     </div>
                   </div>
@@ -189,7 +190,9 @@ const ApplicationResult = () => {
                     <div>
                       <p className="text-sm text-gray-500">Monthly Payment</p>
                       <p className="text-lg font-bold text-green-600">
-                        ${premium.payment_options?.monthly?.toLocaleString() || 'N/A'}
+                        ₹{premium.payment_options?.monthly 
+              ? (premium.payment_options.monthly * USD_TO_INR).toLocaleString("en-IN") 
+              : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -207,7 +210,7 @@ const ApplicationResult = () => {
                   <div key={key} className="flex justify-between text-sm">
                     <span className="text-gray-500">{key}</span>
                     <span className={`font-medium ${value < 0 ? 'text-green-600' : 'text-gray-900'}`}>
-                      {value < 0 ? '-' : ''}${Math.abs(value).toLocaleString()}
+                      {value < 0 ? '-' : ''}₹{Math.abs(value * USD_TO_INR).toLocaleString("en-IN")}
                     </span>
                   </div>
                 ))}

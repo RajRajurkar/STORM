@@ -8,17 +8,17 @@ import Simulator from './pages/Simulator';
 import Analytics from './pages/Analytics';
 import LandingPage from './pages/LandingPage';
 import Architecture from "./pages/Architecture";
+import Chat from "./components/Chats/Chat";
 
 function AppContent() {
   const location = useLocation();
 
-  // ✅ Pages that should be FULL WIDTH
   const isFullPage =
     location.pathname === "/" || location.pathname === "/architecture";
 
   return (
-    <div className="min-h-screen bg-[#030712]">
-
+    <div className={`min-h-screen ${isFullPage ? "bg-[#030712]" : "bg-white"}`}>
+      
       {/* Navbar */}
       {!isFullPage && <Navbar />}
 
@@ -29,9 +29,10 @@ function AppContent() {
           <Route path="/architecture" element={<Architecture />} />
         </Routes>
       ) : (
-        /* DASHBOARD PAGES (WITH CONTAINER) */
+        /* DASHBOARD PAGES */
         <main className="container mx-auto px-4 py-8">
           <Routes>
+            <Route path="/chat" element={<Chat />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/apply" element={<NewApplication />} />
             <Route path="/result" element={<ApplicationResult />} />
