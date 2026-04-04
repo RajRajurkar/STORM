@@ -431,27 +431,52 @@ const HealthDataStep = ({ formData, updateFormData }) => (
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Chronic Conditions
-        </label>
+     <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Chronic Conditions
+  </label>
+
+  <div className="grid grid-cols-2 gap-2">
+    {[
+      "Diabetes",
+      "Hypertension",
+      "Heart Disease",
+      "Asthma",
+      "Thyroid",
+      "Arthritis"
+    ].map((disease) => (
+      <label key={disease} className="flex items-center gap-2">
         <input
-          type="number"
-          value={formData.traditional_data.chronic_conditions}
-          onChange={(e) =>
+          type="checkbox"
+          value={disease}
+          onChange={(e) => {
+            let selected = formData.traditional_data.selected_conditions || [];
+
+            if (e.target.checked) {
+              selected = [...selected, disease];
+            } else {
+              selected = selected.filter((d) => d !== disease);
+            }
+
+            updateFormData("traditional_data", "selected_conditions", selected);
+
             updateFormData(
               "traditional_data",
               "chronic_conditions",
-              parseInt(e.target.value),
-            )
+              selected.length
+            );
+          }}
+          checked={
+            formData.traditional_data.selected_conditions?.includes(disease) ||
+            false
           }
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 
-            focus:ring-primary-500 focus:border-transparent transition-all"
-          min="0"
-          max="5"
+          className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
         />
-      </div>
-
+        <span className="text-gray-700 text-sm">{disease}</span>
+      </label>
+    ))}
+  </div>
+</div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Family History Conditions
@@ -670,6 +695,11 @@ const AlternativeDataStep = ({ formData, updateFormData, updateRootField }) => (
     <h2 className="text-xl font-semibold text-gray-800 mb-2">
       Smart Data Sources
     </h2>
+              <div className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg p-2">
+      ⚠️ Providing your health checkup report can help us assess your risk more accurately 
+      and may lead to a more optimized premium rate. Your data will be handled securely 
+      and used only for insurance evaluation purposes.
+    </div>
     <p className="text-gray-500 text-sm mb-6">
       Connect your wearable devices or enter data manually for better risk
       assessment
@@ -832,23 +862,52 @@ const AlternativeDataStep = ({ formData, updateFormData, updateRootField }) => (
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={formData.alternative_data.regular_checkups}
-            onChange={(e) =>
-              updateFormData(
-                "alternative_data",
-                "regular_checkups",
-                e.target.checked,
-              )
-            }
-            className="w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-          />
-          <span className="text-sm text-gray-700">Regular Health Checkups</span>
-        </label>
-      </div>
+<div className="flex flex-col gap-3">
+  <label className="flex items-center gap-2 cursor-pointer">
+    <input
+      type="checkbox"
+      checked={formData.alternative_data.regular_checkups}
+      onChange={(e) =>
+        updateFormData(
+          "alternative_data",
+          "regular_checkups",
+          e.target.checked
+        )
+      }
+      className="w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+    />
+    <span className="text-sm text-gray-700">
+      Regular Health Checkups
+    </span>
+  </label>
+
+  {/* ✅ Show upload only when checked */}
+  {formData.alternative_data.regular_checkups && (
+    <div className="ml-7">
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={(e) =>
+          updateFormData(
+            "alternative_data",
+            "checkup_report",
+            e.target.files[0]
+          )
+        }
+        className="block w-full text-sm text-gray-600 
+          file:mr-4 file:py-2 file:px-4 
+          file:rounded-lg file:border-0 
+          file:text-sm file:font-medium 
+          file:bg-primary-50 file:text-primary-600 
+          hover:file:bg-primary-100"
+      />
+      <p className="text-xs text-gray-400 mt-1">
+        Upload your latest health report (PDF only)
+      </p>
+
+    </div>
+  )}
+</div>
 
       <div className="flex items-center gap-4">
         <label className="flex items-center gap-2 cursor-pointer">
