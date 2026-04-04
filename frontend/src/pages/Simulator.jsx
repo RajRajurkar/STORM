@@ -1,20 +1,31 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   SlidersHorizontal,
   TrendingUp,
   TrendingDown,
   RefreshCw,
-  Save,
-  AlertCircle
+  AlertCircle,
+  ArrowRight
 } from 'lucide-react';
 import RiskGauge from '../components/RiskGauge';
 import ScenarioSliders from '../components/ScenarioSliders';
 import { simulateScenario, calculateRisk } from '../utils/api';
 import { DEFAULT_APPLICATION, RISK_COLORS } from '../utils/constants';
+import { useApplication } from '../context/ApplicationContext'; // ✅ ADD
 
 const Simulator = () => {
-  const [baseApplication] = useState(DEFAULT_APPLICATION);
+  const navigate = useNavigate();
+  
+  // ✅ GET APPLICATION DATA FROM CONTEXT
+  const { applicationData, applicationResult, hasApplication } = useApplication();
+  
+  // ✅ USE APPLICATION DATA OR DEFAULT
+  const [baseApplication] = useState(
+    hasApplication ? applicationData : DEFAULT_APPLICATION
+  );
+  
   const [modifications, setModifications] = useState({
     traditional: {},
     alternative: {}
@@ -22,14 +33,27 @@ const Simulator = () => {
   const [originalResult, setOriginalResult] = useState(null);
   const [simulatedResult, setSimulatedResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   
   // Load original risk on mount
   useEffect(() => {
-    loadOriginalRisk();
-  }, []);
+    if (hasApplication && applicationResult) {
+      // ✅ USE EXISTING RESULT
+      const result = {
+        risk_score: applicationResult.risk_assessment.risk_score,
+        risk_category: applicationResult.risk_assessment.risk_category,
+        risk_label: applicationResult.risk_assessment.risk_label,
+        confidence: applicationResult.risk_assessment.confidence_score,
+        premium: applicationResult.premium?.final_premium || 0
+      };
+      setOriginalResult(result);
+      setSimulatedResult(result);
+    } else {
+      // ✅ CALCULATE FOR DEFAULT
+      loadOriginalRisk();
+    }
+  }, [hasApplication, applicationResult]);
   
-  // Simulate on modification changes (debounced)
+  // Simulate on modification changes
   useEffect(() => {
     const timer = setTimeout(() => {
       if (Object.keys(modifications.traditional).length > 0 || 
@@ -48,12 +72,12 @@ const Simulator = () => {
       setSimulatedResult(result);
     } catch (err) {
       console.error('Error loading original risk:', err);
-      // Set mock data for demo
       const mockResult = {
         risk_score: 0.42,
         risk_category: 'MODERATE',
         risk_label: 'Moderate Risk',
-        confidence: 0.87
+        confidence: 0.87,
+        premium: 1200
       };
       setOriginalResult(mockResult);
       setSimulatedResult(mockResult);
@@ -62,7 +86,6 @@ const Simulator = () => {
   
   const runSimulation = async () => {
     setLoading(true);
-    setError(null);
     
     try {
       const result = await simulateScenario(baseApplication, modifications);
@@ -72,11 +95,11 @@ const Simulator = () => {
         risk_label: getRiskLabel(result.simulated_risk),
         risk_change: result.risk_change,
         premium_change: result.premium_change,
+        premium: result.simulated_premium,
         recommendation: result.recommendation
       });
     } catch (err) {
       console.error('Simulation error:', err);
-      // Calculate mock result for demo
       const mockChange = calculateMockChange(modifications);
       const newRisk = Math.max(0, Math.min(1, (originalResult?.risk_score || 0.42) + mockChange));
       setSimulatedResult({
@@ -85,9 +108,12 @@ const Simulator = () => {
         risk_label: getRiskLabel(newRisk),
         risk_change: mockChange,
         premium_change: mockChange * 1000,
+        premium: (originalResult?.premium || 1200) + (mockChange * 1000),
         recommendation: mockChange > 0 
           ? 'This change increases your risk profile.' 
-          : 'This change improves your risk profile!'
+          : mockChange < 0 
+            ? 'This change improves your risk profile!'
+            : 'No significant change in risk.'
       });
     } finally {
       setLoading(false);
@@ -96,21 +122,59 @@ const Simulator = () => {
   
   const calculateMockChange = (mods) => {
     let change = 0;
+    const baseTraditional = baseApplication.traditional_data;
+    const baseAlternative = baseApplication.alternative_data;
     
-    if (mods.traditional?.smoking_status === 'current') change += 0.15;
-    if (mods.traditional?.smoking_status === 'former') change += 0.05;
-    if (mods.traditional?.previous_claims) change += mods.traditional.previous_claims * 0.03;
-    if (mods.traditional?.chronic_conditions) change += mods.traditional.chronic_conditions * 0.04;
-    if (mods.traditional?.bmi) {
-      const bmiDiff = mods.traditional.bmi - 25;
-      if (bmiDiff > 0) change += bmiDiff * 0.01;
+    // Smoking
+    if (mods.traditional?.smoking_status) {
+      const baseSmoking = baseTraditional.smoking_status;
+      if (baseSmoking === 'never' && mods.traditional.smoking_status === 'current') change += 0.15;
+      else if (baseSmoking === 'never' && mods.traditional.smoking_status === 'former') change += 0.05;
+      else if (baseSmoking === 'current' && mods.traditional.smoking_status === 'never') change -= 0.15;
+      else if (baseSmoking === 'current' && mods.traditional.smoking_status === 'former') change -= 0.10;
     }
     
+    // BMI - ✅ FIXED
+    if (mods.traditional?.bmi !== undefined) {
+      const baseBMI = baseTraditional.weight_kg / ((baseTraditional.height_cm / 100) ** 2);
+      const bmiDiff = mods.traditional.bmi - baseBMI;
+      
+      if (mods.traditional.bmi > 30) {
+        change += 0.15; // Obese
+      } else if (mods.traditional.bmi > 25) {
+        change += 0.08; // Overweight
+      } else if (mods.traditional.bmi < 18.5) {
+        change += 0.10; // Underweight
+      }
+      
+      // Additional change based on difference
+      change += bmiDiff * 0.01;
+    }
+    
+    // Previous Claims
+    if (mods.traditional?.previous_claims !== undefined) {
+      const diff = mods.traditional.previous_claims - baseTraditional.previous_claims;
+      change += diff * 0.03;
+    }
+    
+    // Chronic Conditions
+    if (mods.traditional?.chronic_conditions !== undefined) {
+      const diff = mods.traditional.chronic_conditions - baseTraditional.chronic_conditions;
+      change += diff * 0.04;
+    }
+    
+    // Exercise - ✅ FIXED
     if (mods.alternative?.exercise_days_per_week !== undefined) {
-      change -= (mods.alternative.exercise_days_per_week - 3) * 0.02;
+      const baseDays = baseAlternative?.exercise_days_per_week || 3;
+      const diff = mods.alternative.exercise_days_per_week - baseDays;
+      change -= diff * 0.02; // More exercise = lower risk
     }
-    if (mods.alternative?.stress_level) {
-      change += (mods.alternative.stress_level - 5) * 0.01;
+    
+    // Stress
+    if (mods.alternative?.stress_level !== undefined) {
+      const baseStress = baseAlternative?.stress_level || 5;
+      const diff = mods.alternative.stress_level - baseStress;
+      change += diff * 0.01;
     }
     
     return change;
@@ -142,6 +206,26 @@ const Simulator = () => {
   const riskChangePercent = originalResult?.risk_score 
     ? (riskChange / originalResult.risk_score) * 100 
     : 0;
+
+  // ✅ SHOW MESSAGE IF NO APPLICATION
+  if (!hasApplication) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+        <SlidersHorizontal className="w-16 h-16 text-gray-300" />
+        <h2 className="text-xl font-semibold text-gray-700">No Baseline Assessment</h2>
+        <p className="text-gray-500 text-center max-w-md">
+          Complete a risk assessment first to use the simulator with your actual data.
+        </p>
+        <button
+          onClick={() => navigate('/apply')}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Complete Assessment
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
   
   return (
     <div className="max-w-6xl mx-auto">
@@ -153,7 +237,10 @@ const Simulator = () => {
       >
         <h1 className="text-3xl font-bold text-gray-900">Risk Scenario Simulator</h1>
         <p className="text-gray-500 mt-2">
-          Adjust factors and see how they impact risk in real-time
+          {hasApplication 
+            ? `Adjust factors based on your assessment (Baseline: ${(originalResult?.risk_score * 100).toFixed(0)}%)`
+            : 'Adjust factors and see how they impact risk in real-time'
+          }
         </p>
       </motion.div>
       
@@ -184,7 +271,11 @@ const Simulator = () => {
             values={{
               traditional: {
                 ...baseApplication.traditional_data,
-                ...modifications.traditional
+                ...modifications.traditional,
+                // ✅ ADD: Calculate current BMI
+                bmi: modifications.traditional?.bmi || 
+                      (baseApplication.traditional_data.weight_kg / 
+                       ((baseApplication.traditional_data.height_cm / 100) ** 2))
               },
               alternative: {
                 ...baseApplication.alternative_data,
@@ -195,7 +286,13 @@ const Simulator = () => {
               setModifications({
                 traditional: Object.fromEntries(
                   Object.entries(newValues.traditional || {}).filter(
-                    ([key, value]) => value !== baseApplication.traditional_data[key]
+                    ([key, value]) => {
+                      const baseValue = key === 'bmi' 
+                        ? baseApplication.traditional_data.weight_kg / 
+                          ((baseApplication.traditional_data.height_cm / 100) ** 2)
+                        : baseApplication.traditional_data[key];
+                      return value !== baseValue;
+                    }
                   )
                 ),
                 alternative: Object.fromEntries(
@@ -208,7 +305,7 @@ const Simulator = () => {
           />
         </motion.div>
         
-        {/* Results Panel */}
+        {/* Results Panel - Same as before */}
         <motion.div
           className="lg:col-span-2 space-y-6"
           initial={{ opacity: 0, x: 20 }}
@@ -222,7 +319,9 @@ const Simulator = () => {
             <div className="grid grid-cols-3 gap-6 items-center">
               {/* Original Risk */}
               <div className="text-center">
-                <p className="text-sm text-gray-500 mb-2">Baseline</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  {hasApplication ? 'Your Baseline' : 'Baseline'}
+                </p>
                 {originalResult && (
                   <RiskGauge 
                     score={originalResult.risk_score}
@@ -328,7 +427,9 @@ const Simulator = () => {
                 {Object.entries(modifications.traditional).map(([key, value]) => (
                   <span key={key} className="px-3 py-1 bg-primary-50 text-primary-700 
                     rounded-full text-sm font-medium">
-                    {key.replace(/_/g, ' ')}: {String(value)}
+                    {key.replace(/_/g, ' ')}: {
+                      key === 'bmi' ? value.toFixed(1) : String(value)
+                    }
                   </span>
                 ))}
                 {Object.entries(modifications.alternative).map(([key, value]) => (

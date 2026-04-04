@@ -56,13 +56,13 @@ class PremiumCalculator:
         discount_amounts = {}
         total_discount_amount = 0.0
 
-        # ✅ Apply discounts SEQUENTIALLY
+        #  Apply discounts SEQUENTIALLY
         for k, v in discount_breakdown.items():
-            discount_value = running_premium * v
+            discount_value = running_premium * v 
             discount_value = round(discount_value, 2)
-
+    
             discount_amounts[k] = discount_value
-            running_premium -= discount_value
+            running_premium -= discount_value      
             total_discount_amount += discount_value
 
         adjusted_premium = running_premium

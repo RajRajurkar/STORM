@@ -1,27 +1,35 @@
 import axios from 'axios';
-import { API_BASE_URL } from './constants';
 
-// Create axios instance
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, 
 });
 
-// API Functions
+api.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
+
 export const underwriteApplication = async (application) => {
-  const response = await api.post('/underwrite', application);
+  const response = await api.post('underwrite', application);
   return response.data;
 };
 
 export const calculateRisk = async (application) => {
-  const response = await api.post('/risk/calculate', application);
+  const response = await api.post('risk/calculate', application);
   return response.data;
 };
 
 export const simulateScenario = async (baseApplication, modifications) => {
-  const response = await api.post('/simulate/scenario', {
+  const response = await api.post('simulate/scenario', {
     base_application: baseApplication,
     modified_factors: modifications,
   });
@@ -29,17 +37,17 @@ export const simulateScenario = async (baseApplication, modifications) => {
 };
 
 export const predictFutureRisk = async (application) => {
-  const response = await api.post('/predict/future', application);
+  const response = await api.post('predict/future', application);
   return response.data;
 };
 
 export const getAnalyticsSummary = async () => {
-  const response = await api.get('/analytics/summary');
+  const response = await api.get('analytics/summary');
   return response.data;
 };
 
 export const healthCheck = async () => {
-  const response = await api.get('/health');
+  const response = await api.get('health');
   return response.data;
 };
 

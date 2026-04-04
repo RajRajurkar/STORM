@@ -2,12 +2,30 @@ import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { 
   Activity,
-  User,
-  LogIn
+  LogIn,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
+import { useApplication } from '../context/ApplicationContext'; // ✅ ADD
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { hasApplication, applicationResult } = useApplication(); // ✅ ADD
+
+  // ✅ Calculate risk percentage if available
+  const riskPercentage = hasApplication && applicationResult?.risk_assessment 
+    ? (applicationResult.risk_assessment.risk_score * 100).toFixed(0)
+    : null;
+
+  // ✅ Get risk color
+  const getRiskColor = () => {
+    if (!hasApplication || !applicationResult) return null;
+    const score = applicationResult.risk_assessment.risk_score;
+    if (score < 0.3) return '#22C55E'; // Green
+    if (score < 0.5) return '#F59E0B'; // Yellow
+    if (score < 0.7) return '#F97316'; // Orange
+    return '#EF4444'; // Red
+  };
 
   return (
     <motion.nav
@@ -109,35 +127,62 @@ export default function Navbar() {
         {/* Buttons */}
         <div className="flex items-center gap-3">
 
-          {/* Login */}
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/login")}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium bg-white/5 border border-gray-700 hover:border-primary-500 transition-all duration-300 group relative overflow-hidden"
-          >
+          {/* ✅ Assessment Status Indicator (NEW) */}
+          {hasApplication && (
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-              initial={{ x: "-100%" }}
-              whileHover={{ x: "100%" }}
-              transition={{ duration: 0.6 }}
-            />
-            <span className="text-gray-300 group-hover:text-white transition">
-              Login
-            </span>
-          </motion.button>
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-green-500/30"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <CheckCircle className="w-4 h-4 text-green-400" />
+              </motion.div>
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-400">Risk Score</span>
+                <span 
+                  className="text-sm font-bold"
+                  style={{ color: getRiskColor() }}
+                >
+                  {riskPercentage}%
+                </span>
+              </div>
+            </motion.div>
+          )}
 
-          {/* Launch App */}
+          {/* Login - Hidden if user has assessment */}
+          {!hasApplication && (
+            <motion.button
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/login")}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium bg-white/5 border border-gray-700 hover:border-primary-500 transition-all duration-300 group relative overflow-hidden"
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                initial={{ x: "-100%" }}
+                whileHover={{ x: "100%" }}
+                transition={{ duration: 0.6 }}
+              />
+              <span className="text-gray-300 group-hover:text-white transition">
+                Login
+              </span>
+            </motion.button>
+          )}
+
+          {/* ✅ Launch App / View Dashboard (Dynamic) */}
           <motion.button
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, type: "spring", stiffness: 400 }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate(hasApplication ? "/dashboard" : "/apply")}
             className="px-6 py-2.5 rounded-xl font-medium bg-gradient-to-r from-primary-600 via-purple-600 to-indigo-600 shadow-lg relative overflow-hidden group"
           >
             <motion.div
@@ -153,7 +198,12 @@ export default function Navbar() {
               >
                 <Activity className="w-4 h-4 text-white" />
               </motion.div>
-              <span>Launch App</span>
+              
+              {/* ✅ Dynamic button text */}
+              <span>
+                {hasApplication ? "View Dashboard" : "Get Started"}
+              </span>
+              
               <motion.div
                 animate={{ x: [0, 5, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
@@ -163,6 +213,43 @@ export default function Navbar() {
               </motion.div>
             </div>
           </motion.button>
+
+          {/* ✅ Quick Access to Chat/Simulator (if assessment exists) */}
+          {hasApplication && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="hidden lg:flex items-center gap-2"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/chat")}
+                className="px-4 py-2 rounded-xl bg-white/5 border border-gray-700 hover:border-blue-500 transition-all text-sm text-gray-300 hover:text-white relative group"
+              >
+                <motion.div
+                  className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full border-2 border-gray-900"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                AI Chat
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/simulate")}
+                className="px-4 py-2 rounded-xl bg-white/5 border border-gray-700 hover:border-purple-500 transition-all text-sm text-gray-300 hover:text-white relative group"
+              >
+                <motion.div
+                  className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full border-2 border-gray-900"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                Simulator
+              </motion.button>
+            </motion.div>
+          )}
         </div>
       </div>
 

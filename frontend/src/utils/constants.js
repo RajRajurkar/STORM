@@ -93,3 +93,8 @@ export const CHART_COLORS = {
   grid: '#E5E7EB',
   text: '#6B7280',
 };
+
+export const CURRENCY = {
+  symbol: '$',
+  locale: 'en-US',
+};

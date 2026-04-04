@@ -9,45 +9,16 @@ from config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
-    # Startup
-    print("LiveRisk AI - Starting up...")
-    print(f"Model Version: 1.0.0")
-    print(f"STP Auto-Approve Threshold: {settings.STP_AUTO_APPROVE_RISK}")
+    print("🚀 LiveRisk AI - Starting up...")
+    print(f"📊 Model Version: 1.0.0")
+    print(f"⚡ STP Auto-Approve Threshold: {settings.STP_AUTO_APPROVE_RISK}")
     yield
-    print("LiveRisk AI - Shutting down...")
+    print("👋 LiveRisk AI - Shutting down...")
 
 
-# Create FastAPI application
 app = FastAPI(
     title="LiveRisk AI",
-    description="""
-    ## Intelligent Automated Underwriting Platform
-    
-    LiveRisk AI is a comprehensive insurance underwriting system that combines:
-    
-    - **Traditional Data Analysis**: Age, health history, medical conditions
-    - **Alternative Data Integration**: Wearables, lifestyle, behavioral patterns
-    - **Hybrid ML Risk Engine**: Domain knowledge + Machine Learning
-    - **Straight-Through Processing**: Automated decision routing
-    - **Fraud Detection**: Anomaly detection and pattern analysis
-    - **Explainable AI**: Clear reasoning for all decisions
-    
-    ### Problem Statement Addressed
-    
-    **PS0103**: Automated Risk Assessment and Underwriting Platform
-    
-    With integrated elements from:
-    - **PS0101**: Straight-Through Processing (STP)
-    - **PS0102**: Fraud Detection
-    
-    ### Key Features
-    
-    1. **Real-time Risk Assessment** - Instant risk scoring
-    2. **Auto-Approval Pipeline** - 68%+ STP rate
-    3. **What-If Simulation** - Interactive scenario testing
-    4. **Future Risk Prediction** - Trajectory forecasting
-    5. **Complete Transparency** - Every decision explained
-    """,
+    description="Intelligent Automated Underwriting Platform",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -55,7 +26,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -63,6 +34,42 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(router)
+
+# ✅ ADD AGENT ROUTES DIRECTLY IN MAIN.PY
+from fastapi import HTTPException
+from pydantic import BaseModel
+from typing import Optional, Dict, List
+from agents.risk_agent import risk_agent
+
+class ChatRequest(BaseModel):
+    message: str
+    user_profile: Optional[Dict] = None
+    risk_context: Optional[Dict] = None
+    conversation_history: Optional[List[Dict]] = None
+
+@app.post("/api/v1/agent/chat")
+async def chat_with_agent(request: ChatRequest):
+    """Chat with AI Risk Agent"""
+    try:
+        print(f"📨 Chat request: {request.message[:50]}...")
+        print(f"👤 User profile: {request.user_profile is not None}")
+        print(f"📊 Risk context: {request.risk_context is not None}")
+        
+        response = await risk_agent.chat(
+            message=request.message,
+            user_profile=request.user_profile,
+            risk_context=request.risk_context,
+            conversation_history=request.conversation_history
+        )
+        
+        print(f"✅ Response generated: {len(response.get('response', ''))} chars")
+        return response
+        
+    except Exception as e:
+        print(f"❌ Chat error: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/")
@@ -79,8 +86,20 @@ async def root():
             "scenario_simulate": "/api/v1/simulate/scenario",
             "future_predict": "/api/v1/predict/future",
             "analytics": "/api/v1/analytics/summary",
+            "chat": "/api/v1/agent/chat",
             "docs": "/docs"
         }
+    }
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    from datetime import datetime
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "version": "1.0.0"
     }
 
 

@@ -44,17 +44,21 @@ class RiskEngine:
     def __init__(self):
         self.weights = RISK_WEIGHTS
         self.categories = RISK_CATEGORIES
-        
+    
         # Initialize ML model if available
         self.ml_model = None
         if ML_AVAILABLE:
             try:
                 self.ml_model = get_model()
-                model_info = self.ml_model.get_model_info()
-                print(f" ML Model loaded: {model_info.get('classification_model', 'N/A')}")
-                print(f"   Accuracy: {model_info.get('accuracy', 'N/A')}")
+                if self.ml_model.is_loaded:  
+                    model_info = self.ml_model.get_model_info()
+                    print(f" ML Model loaded: {model_info.get('classification_model', 'N/A')}")
+                    print(f"   Accuracy: {model_info.get('accuracy', 'N/A')}")
+                else:
+                    print(" ML model exists but not loaded - using rule-based system")
             except Exception as e:
                 print(f" Could not load ML model: {e}")
+                print("   Falling back to rule-based system")
         
     def calculate_risk(self, application: ApplicationInput) -> RiskAssessmentResult:
         """

@@ -152,102 +152,202 @@ Current Risk Assessment:
         message_lower = message.lower()
         
         if not risk_context:
-            return (" Hello! I'm LiveRisk AI, your intelligent insurance risk assistant. "
-                   "I'd be happy to help! Please first complete a risk assessment so I can "
-                   "provide personalized insights about your health profile.")
+            return ("👋 Hello! I'm LiveRisk AI, your intelligent insurance risk assistant. "
+                "I'd be happy to help! Please first complete a risk assessment so I can "
+                "provide personalized insights about your health profile.")
         
         risk_score = risk_context.get('risk_score', 0.5)
         category = risk_context.get('risk_category', 'Unknown')
         premium = risk_context.get('premium_estimate', 0)
         
-        # Handle common questions
-        if any(word in message_lower for word in ['why', 'reason', 'explain', 'factor']):
+        # Extract user details
+        user_name = user_profile.get('name', 'there') if user_profile else 'there'
+        age = user_profile.get('age', 'N/A') if user_profile else 'N/A'
+        bmi = user_profile.get('bmi', 'N/A') if user_profile else 'N/A'
+        smoker = user_profile.get('smoker', False) if user_profile else False
+        
+        # Handle "why" questions
+        if any(word in message_lower for word in ['why', 'reason', 'explain', 'factor', 'cause']):
             factors = []
+            
             if user_profile:
+                # Analyze smoking
                 if user_profile.get('smoker'):
-                    factors.append(" **Smoking status** - This is the most significant factor, typically adding 30-50% to risk")
-                if user_profile.get('bmi', 0) > 30:
-                    factors.append(f" **Elevated BMI** ({user_profile['bmi']:.1f}) - BMI above 30 is classified as obese")
-                elif user_profile.get('bmi', 0) > 25:
-                    factors.append(f" **Elevated BMI** ({user_profile['bmi']:.1f}) - BMI above 25 is classified as overweight")
-                if user_profile.get('age', 0) > 50:
-                    factors.append(f" **Age** ({user_profile['age']} years) - Risk naturally increases with age")
-                if user_profile.get('children', 0) > 2:
-                    factors.append(f" **Dependents** ({user_profile['children']}) - More dependents can affect coverage needs")
+                    smoking_status = user_profile.get('smoking_status', 'current')
+                    if smoking_status == 'current':
+                        factors.append("🚬 **Current Smoker** - This is the single most significant factor, adding approximately 15-20% to your risk score. Smoking affects multiple health systems and significantly increases insurance claims probability.")
+                    elif smoking_status == 'former':
+                        factors.append("🚬 **Former Smoker** - While you've quit, there's still residual risk (about 5% added to your score). The good news: this decreases over time!")
+                
+                # Analyze BMI
+                try:
+                    bmi_val = float(bmi)
+                    if bmi_val < 18.5:
+                        factors.append(f"⚖️ **Low BMI** ({bmi}) - Being underweight (BMI < 18.5) can indicate nutritional deficiencies and adds ~8-10% to risk.")
+                    elif bmi_val >= 25 and bmi_val < 30:
+                        factors.append(f"⚖️ **Elevated BMI** ({bmi}) - Your BMI is in the 'overweight' range (25-30), adding approximately 8-12% to your risk score.")
+                    elif bmi_val >= 30 and bmi_val < 35:
+                        factors.append(f"⚖️ **Obesity Class I** ({bmi}) - BMI of 30-35 is classified as obese, contributing 14-18% to your overall risk.")
+                    elif bmi_val >= 35:
+                        factors.append(f"⚖️ **Obesity Class II+** ({bmi}) - BMI above 35 significantly impacts risk, adding 20-25% to your score due to associated health complications.")
+                except:
+                    pass
+                
+                # Age factor
+                if age != 'N/A':
+                    try:
+                        age_val = int(age)
+                        if age_val > 55:
+                            factors.append(f"📅 **Age Factor** ({age} years) - Age is a natural risk factor. After 55, risk increases by about 1-2% per year due to natural aging processes.")
+                        elif age_val > 45:
+                            factors.append(f"📅 **Age Factor** ({age} years) - Age contributes moderately to risk, adding approximately 5-8% to your score.")
+                    except:
+                        pass
+                
+                # Previous claims
+                claims = user_profile.get('previous_claims', 0)
+                if claims > 0:
+                    claims_impact = min(claims * 3, 15)
+                    factors.append(f"📋 **Claims History** ({claims} previous claim{'s' if claims > 1 else ''}) - Each claim adds ~3% to risk. Your {claims} claim{'s' if claims > 1 else ''} contribute approximately {claims_impact}% to your total score.")
+                
+                # Chronic conditions
+                chronic = user_profile.get('chronic_conditions', 0)
+                if chronic > 0:
+                    chronic_impact = min(chronic * 4, 20)
+                    factors.append(f"🏥 **Chronic Conditions** ({chronic} condition{'s' if chronic > 1 else ''}) - Each chronic condition adds ~4% to risk. Your {chronic} condition{'s' if chronic > 1 else ''} contribute approximately {chronic_impact}%.")
+                
+                # Exercise (protective)
+                exercise = user_profile.get('exercise_days', 0)
+                if exercise >= 4:
+                    factors.append(f"✅ **Regular Exercise** ({exercise} days/week) - Great! This is working in your favor, reducing risk by approximately {exercise * 1.5:.0f}%.")
+                elif exercise <= 1:
+                    factors.append(f"⚠️ **Low Physical Activity** ({exercise} day{'s' if exercise != 1 else ''}/week) - Limited exercise adds ~6-8% to risk. Increasing to 3-4 days/week could significantly improve your score.")
+                
+                # Stress
+                stress = user_profile.get('stress_level', 5)
+                if stress >= 7:
+                    factors.append(f"😰 **High Stress** (Level {stress}/10) - Elevated stress contributes ~{(stress - 5) * 2:.0f}% to your risk due to its impact on overall health.")
             
             if factors:
-                return (f"Your risk score is **{risk_score:.2f}** ({category}). "
-                       f"Here are the key factors:\n\n" + "\n".join(factors) +
-                       "\n\n Would you like suggestions on how to improve your risk score?")
+                response = f"Your risk score of **{risk_score*100:.0f}%** ({category}) is influenced by several factors:\n\n"
+                response += "\n\n".join(factors)
+                response += f"\n\n**Total Impact:** These factors combine to create your current risk profile. The good news? Many of these are modifiable! Would you like specific suggestions on improving your score?"
+                return response
             else:
-                return (f"Your risk score is **{risk_score:.2f}** ({category}). "
-                       "The main factors include age, BMI, smoking status, and region. "
-                       "Would you like me to explain any specific factor?")
+                return (f"Your risk score is **{risk_score*100:.0f}%** ({category}). "
+                    "The main factors include age, BMI, smoking status, and health history. "
+                    "Would you like me to explain any specific factor in detail?")
         
-        if any(word in message_lower for word in ['improve', 'reduce', 'lower', 'better', 'decrease']):
+        # Handle "improve/reduce" questions
+        if any(word in message_lower for word in ['improve', 'reduce', 'lower', 'better', 'decrease', 'help']):
             suggestions = ["Here's how you can improve your risk score:\n"]
             
             if user_profile:
                 if user_profile.get('smoker'):
-                    suggestions.append(" **Quit smoking** - This is the single most impactful change. "
-                                      "Could reduce your risk by 30-40% and save potentially $200-400/month on premiums.")
+                    potential_savings = premium * 0.15 if premium else 200
+                    suggestions.append(f"🎯 **#1 Priority: Quit Smoking**\n   - **Potential Impact:** Reduce risk by 15-20%\n   - **Premium Savings:** Could save ${potential_savings:.0f}-${potential_savings*1.3:.0f}/month\n   - **Timeline:** Risk starts decreasing immediately, major improvements after 6-12 months\n   - **Resources:** Consider nicotine replacement therapy, counseling, or medications")
                 
-                bmi = user_profile.get('bmi', 25)
-                if bmi > 30:
-                    target_bmi = 25
-                    suggestions.append(f" **Reduce BMI** - Going from {bmi:.1f} to {target_bmi} could reduce risk by 15-25%. "
-                                      "This typically requires lifestyle changes in diet and exercise.")
-                elif bmi > 25:
-                    suggestions.append(f" **Achieve healthy BMI** - Reducing BMI from {bmi:.1f} to under 25 would help lower your risk.")
+                try:
+                    bmi_val = float(bmi)
+                    if bmi_val > 30:
+                        target_bmi = 25
+                        weight_loss = (bmi_val - target_bmi) * ((user_profile.get('height_cm', 170)/100) ** 2)
+                        suggestions.append(f"🎯 **Achieve Healthy BMI**\n   - **Current:** {bmi_val:.1f} (Obese)\n   - **Target:** 25 (Healthy)\n   - **Weight Goal:** Lose ~{weight_loss:.0f}kg\n   - **Potential Impact:** Reduce risk by 12-18%\n   - **Approach:** Combine diet (500 cal deficit) + exercise (150 min/week)")
+                    elif bmi_val > 25:
+                        suggestions.append(f"🎯 **Optimize BMI**\n   - **Current:** {bmi_val:.1f} (Overweight)\n   - **Target:** 22-24 (Optimal)\n   - **Potential Impact:** Reduce risk by 6-10%")
+                except:
+                    pass
+                
+                exercise = user_profile.get('exercise_days', 0)
+                if exercise < 4:
+                    suggestions.append(f"🎯 **Increase Physical Activity**\n   - **Current:** {exercise} days/week\n   - **Goal:** 4-5 days/week, 30-45 min each\n   - **Potential Impact:** Reduce risk by 5-8%\n   - **Start Simple:** Walking, swimming, or cycling\n   - **Progressive Plan:** Week 1-2: 20min, Week 3-4: 30min, Week 5+: 45min")
+                
+                stress = user_profile.get('stress_level', 5)
+                if stress >= 7:
+                    suggestions.append(f"🎯 **Stress Management**\n   - **Current:** {stress}/10 (High)\n   - **Target:** Below 5/10\n   - **Potential Impact:** Reduce risk by 3-5%\n   - **Techniques:** Meditation (10min daily), yoga, adequate sleep (7-8hrs)")
+                
+                claims = user_profile.get('previous_claims', 0)
+                if claims > 0:
+                    suggestions.append(f"🎯 **Preventive Healthcare**\n   - **Current:** {claims} previous claim{'s' if claims > 1 else ''}\n   - **Goal:** Prevent future claims through regular checkups\n   - **Actions:** Annual physicals, dental cleanings, vision exams\n   - **Long-term:** Each claim-free year improves your profile")
             
-            suggestions.append(" **Regular exercise** - 150 minutes of moderate activity per week can improve overall health metrics.")
-            suggestions.append(" **Preventive care** - Regular check-ups can catch issues early and demonstrate health commitment.")
+            if len(suggestions) == 1:  # Only header
+                suggestions.append("📋 **Regular Health Checkups** - Stay on top of preventive care")
+                suggestions.append("🏃 **150 minutes/week** of moderate exercise")
+                suggestions.append("🥗 **Balanced nutrition** - Focus on whole foods")
             
-            return "\n".join(suggestions)
+            suggestions.append(f"\n💡 **Quick Win:** Start with the #1 priority above. Even small improvements compound over time!")
+            
+            return "\n\n".join(suggestions)
         
-        if any(word in message_lower for word in ['what if', 'scenario', 'if i', 'suppose']):
-            return ("Great question!  I can help you explore different scenarios. "
-                   "Try using the **Scenario Simulator** to see how changes in:\n\n"
-                   "• BMI\n• Smoking status\n• Age\n• Dependents\n\n"
-                   "...would affect your risk score in real-time. "
-                   "You can find it in the navigation menu!")
+        # Handle "what if" questions
+        if any(word in message_lower for word in ['what if', 'scenario', 'if i', 'suppose', 'simulate']):
+            return ("Great question! 🎮 I can help you explore different scenarios.\n\n"
+                "**Try the Scenario Simulator** to see real-time impact of changes in:\n"
+                "• 🚬 Smoking status (quit/start)\n"
+                "• ⚖️ BMI changes\n"
+                "• 🏃 Exercise frequency\n"
+                "• 😰 Stress levels\n"
+                "• 📋 Health metrics\n\n"
+                "The simulator shows you **instant risk updates** and **premium impact** as you adjust each factor!\n\n"
+                "Or ask me specifically: \"What if I quit smoking?\" or \"What if I reduce my BMI to 24?\"")
         
-        if any(word in message_lower for word in ['premium', 'cost', 'price', 'pay']):
-            return (f"Based on your current risk profile, your estimated annual premium is **${premium:,.2f}**.\n\n"
-                   f"This translates to approximately **${premium/12:,.2f}/month**.\n\n"
-                   f"Your risk category is: **{category}**\n\n"
-                   " Improving your risk score could significantly reduce this amount. "
-                   "Would you like suggestions on how to lower your premium?")
+        # Handle premium questions
+        if any(word in message_lower for word in ['premium', 'cost', 'price', 'pay', 'money', 'expensive']):
+            return (f"💰 **Your Premium Breakdown**\n\n"
+                f"**Annual Premium:** ${premium:,.2f}\n"
+                f"**Monthly:** ${premium/12:,.2f}\n"
+                f"**Risk Category:** {category}\n"
+                f"**Risk Score:** {risk_score*100:.0f}%\n\n"
+                f"**Why this amount?**\n"
+                f"Your premium is calculated based on your {risk_score*100:.0f}% risk score. "
+                f"For comparison:\n"
+                f"• Low risk (< 30%): ~${premium*0.7:,.0f}/year\n"
+                f"• Your level ({risk_score*100:.0f}%): ${premium:,.0f}/year\n"
+                f"• High risk (> 70%): ~${premium*1.5:,.0f}/year\n\n"
+                f"**Want to reduce it?** Ask me \"How can I reduce my premium?\"")
         
-        if any(word in message_lower for word in ['future', 'predict', 'forecast', 'projection']):
-            return (" I can show you risk projections for the next 3, 6, and 12 months!\n\n"
-                   "Check out the **Future Prediction** page to see:\n"
-                   "• How your risk may evolve over time\n"
-                   "• Key trend analysis\n"
-                   "• Confidence levels for predictions\n\n"
-                   "Would you like me to explain how future predictions work?")
+        # Handle future/prediction questions
+        if any(word in message_lower for word in ['future', 'predict', 'forecast', 'projection', 'trajectory']):
+            return ("📈 **Future Risk Predictions**\n\n"
+                "I can show you how your risk might evolve over the next 12 months!\n\n"
+                "**Predictions Include:**\n"
+                "• 📊 3, 6, and 12-month projections\n"
+                "• 📉 Risk trajectory with confidence intervals\n"
+                "• ⚠️ Early warnings if risk is trending up\n"
+                "• ✅ Positive reinforcement if improving\n\n"
+                "Check the **Future Prediction** page to see your personalized forecast, or ask me: \"What will my risk be in 6 months?\"")
         
-        if any(word in message_lower for word in ['hello', 'hi', 'hey', 'help']):
-            return (f"👋 Hello! I'm LiveRisk AI, your intelligent insurance risk assistant.\n\n"
-                   f"I see your current risk score is **{risk_score:.2f}** ({category}).\n\n"
-                   "I can help you:\n"
-                   "•  Understand your risk factors\n"
-                   "•  Get improvement suggestions\n"
-                   "•  Explore what-if scenarios\n"
-                   "•  Understand future projections\n\n"
-                   "What would you like to know?")
+        # Handle greeting
+        if any(word in message_lower for word in ['hello', 'hi', 'hey', 'help', 'start']):
+            return (f"👋 Hello {user_name}! I'm LiveRisk AI.\n\n"
+                f"I can see your current risk profile:\n"
+                f"• **Risk Score:** {risk_score*100:.0f}% ({category})\n"
+                f"• **Annual Premium:** ${premium:,.2f}\n\n"
+                f"**I can help you with:**\n"
+                f"✓ Understanding why your risk is {risk_score*100:.0f}%\n"
+                f"✓ Getting personalized improvement strategies\n"
+                f"✓ Exploring what-if scenarios\n"
+                f"✓ Understanding your premium breakdown\n"
+                f"✓ Predicting future risk trends\n\n"
+                f"**Try asking:**\n"
+                f"• \"Why is my risk {risk_score*100:.0f}%?\"\n"
+                f"• \"How can I reduce my premium?\"\n"
+                f"• \"What if I quit smoking?\"\n\n"
+                f"What would you like to know?")
         
         # Default response
-        return (f"I understand you're asking about your insurance risk. "
-               f"Your current score is **{risk_score:.2f}** ({category}) "
-               f"with an estimated premium of **${premium:,.2f}/year**.\n\n"
-               "Feel free to ask me:\n"
-               "• \"Why is my risk high?\"\n"
-               "• \"How can I reduce my premium?\"\n"
-               "• \"What if I quit smoking?\"\n"
-               "• \"Explain my risk factors\"\n\n"
-               "How can I help you today?")
-    
+        return (f"I understand you're asking about: \"{message}\"\n\n"
+            f"**Your Current Status:**\n"
+            f"• Risk Score: **{risk_score*100:.0f}%** ({category})\n"
+            f"• Annual Premium: **${premium:,.2f}**\n\n"
+            f"**Common Questions:**\n"
+            f"• \"Why is my risk {risk_score*100:.0f}%?\"\n"
+            f"• \"How can I reduce my premium?\"\n"
+            f"• \"What if I quit smoking?\"\n"
+            f"• \"Show me improvement strategies\"\n"
+            f"• \"What's my future risk trajectory?\"\n\n"
+            f"How can I help you today?")
+
     def _get_default_suggestions(
         self,
         user_profile: Optional[Dict],
@@ -260,7 +360,8 @@ Current Risk Assessment:
         if user_profile:
             if user_profile.get('smoker'):
                 suggestions.append("What if I quit smoking?")
-            if user_profile.get('bmi', 0) > 25:
+            bmi = float(user_profile.get('bmi', 0) or 0)
+            if bmi > 25:
                 suggestions.append("How can I improve my BMI?")
         
         suggestions.extend([

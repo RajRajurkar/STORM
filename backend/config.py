@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     FRAUD_FLAG_THRESHOLD: float = 0.7     # Flag if fraud score above this
     FRAUD_REVIEW_THRESHOLD: float = 0.5   # Review if above this
     
+    GROK_API_KEY: str = ""
+    GROK_API_URL: str = "https://api.x.ai/v1"
+    GROK_MODEL: str = "grok-beta"
+    
     # Premium Calculation
     BASE_PREMIUM: float = 1200.0          # Base annual premium ($)
     MAX_PREMIUM_MULTIPLIER: float = 3.5   # Maximum premium multiplier
