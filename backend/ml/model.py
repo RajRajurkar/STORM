@@ -38,7 +38,7 @@ class MLRiskModel:
         self.metrics = None
         self.is_loaded = False
         
-        # Try to load models
+     
         self._load_models()
     
     def _load_models(self):
@@ -54,18 +54,15 @@ class MLRiskModel:
             return
         
         try:
-            # Load models
             with open(model_path, 'rb') as f:
                 model_data = pickle.load(f)
             
             self.classification_model = model_data['classification_model']
             self.regression_model = model_data['regression_model']
-            
-            # Load feature engineer
+
             if os.path.exists(fe_path):
                 self.feature_engineer.load(fe_path)
-            
-            # Load metrics
+
             if os.path.exists(metrics_path):
                 with open(metrics_path, 'r') as f:
                     self.metrics = json.load(f)
@@ -133,16 +130,14 @@ class MLRiskModel:
     
     def _prepare_features(self, data: Dict[str, Any]) -> np.ndarray:
         """Convert application data to model features."""
-        
-        # Flatten nested structure if present
+
         flat_data = {}
         
         if 'traditional_data' in data:
             flat_data.update(data['traditional_data'])
         if 'alternative_data' in data and data['alternative_data']:
             flat_data.update(data['alternative_data'])
-        
-        # Add root level fields
+
         for key in ['age', 'gender', 'occupation', 'annual_income']:
             if key in data and key not in flat_data:
                 flat_data[key] = data[key]
@@ -193,15 +188,14 @@ class MLRiskModel:
             importances = self.classification_model.feature_importances_
             feature_names = self.feature_engineer.get_feature_names()
             
-            # Get feature values
+            
             feature_values = features[0]
             
             for i, (name, importance) in enumerate(zip(feature_names, importances)):
-                if importance > 0.02:  # Only significant features
-                    # Determine if this increases or decreases risk
+                if importance > 0.02:
+                 
                     value = feature_values[i] if i < len(feature_values) else 0
                     
-                    # For standardized features, positive = higher than average
                     contribution_direction = 'positive' if value > 0 else 'negative'
                     
                     contributions.append({
@@ -211,15 +205,13 @@ class MLRiskModel:
                         'contribution': round(importance * (1 if value > 0 else -1), 4),
                         'direction': contribution_direction
                     })
-            
-            # Sort by absolute importance
+
             contributions.sort(key=lambda x: abs(x['importance']), reverse=True)
         
         return contributions[:10]  # Top 10 features
     
     def _format_feature_name(self, name: str) -> str:
         """Format feature name for display."""
-        # Convert snake_case to Title Case
         return ' '.join(word.capitalize() for word in name.split('_'))
     
     def _fallback_prediction(self, data: Dict[str, Any]) -> Dict[str, Any]:

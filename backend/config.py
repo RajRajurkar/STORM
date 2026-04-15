@@ -16,25 +16,25 @@ class Settings(BaseSettings):
     HIGH_RISK_THRESHOLD: float = 0.7   
     
     # STP (Straight-Through Processing) Thresholds
-    STP_AUTO_APPROVE_RISK: float = 0.35   # Auto-approve if risk below this
-    STP_AUTO_APPROVE_CONFIDENCE: float = 0.85  # AND confidence above this
-    STP_REVIEW_CONFIDENCE: float = 0.60   # Below this = manual review
+    STP_AUTO_APPROVE_RISK: float = 0.35   
+    STP_AUTO_APPROVE_CONFIDENCE: float = 0.85 
+    STP_REVIEW_CONFIDENCE: float = 0.60   
     
     # Fraud Detection Thresholds
-    FRAUD_FLAG_THRESHOLD: float = 0.7     # Flag if fraud score above this
-    FRAUD_REVIEW_THRESHOLD: float = 0.5   # Review if above this
+    FRAUD_FLAG_THRESHOLD: float = 0.7     
+    FRAUD_REVIEW_THRESHOLD: float = 0.5  
     
     GROK_API_KEY: str = ""
     GROK_API_URL: str = "https://api.x.ai/v1"
     GROK_MODEL: str = "grok-beta"
     
     # Premium Calculation
-    BASE_PREMIUM: float = 1200.0          # Base annual premium ($)
-    MAX_PREMIUM_MULTIPLIER: float = 3.5   # Maximum premium multiplier
-    MIN_PREMIUM_MULTIPLIER: float = 0.7   # Minimum premium multiplier
+    BASE_PREMIUM: float = 1200.0   
+    MAX_PREMIUM_MULTIPLIER: float = 3.5  
+    MIN_PREMIUM_MULTIPLIER: float = 0.7  
     
     # Model Settings
-    CONFIDENCE_THRESHOLD: float = 0.6     # Minimum confidence for auto-decision
+    CONFIDENCE_THRESHOLD: float = 0.6  
     
     '''
     """Application settings"""
@@ -67,10 +67,10 @@ class Settings(BaseSettings):
     def validate(cls):
         """Validate required settings"""
         if not cls.GROK_API_KEY:
-            print("⚠️ Warning: GROK_API_KEY not set. AI chat will use fallback responses.")
+            print(" Warning: GROK_API_KEY not set. AI chat will use fallback responses.")
         
         if not os.path.exists(cls.DATA_PATH):
-            print(f"⚠️ Warning: Dataset not found at {cls.DATA_PATH}")
+            print(f"Warning: Dataset not found at {cls.DATA_PATH}")
             print("   Please download from: https://www.kaggle.com/datasets/mirichoi0218/insurance")
         
         return True

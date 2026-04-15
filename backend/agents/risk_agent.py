@@ -375,7 +375,7 @@ Current Risk Assessment:
         
         suggestions = []
         
-        # Look for bullet points or numbered lists
+        
         lines = response.split('\n')
         for line in lines:
             line = line.strip()
@@ -414,5 +414,4 @@ Current Risk Assessment:
         return "".join(summary_parts)
 
 
-# Singleton instance
 risk_agent = RiskAgent()

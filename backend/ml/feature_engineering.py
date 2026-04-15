@@ -51,15 +51,14 @@ class FeatureEngineer:
         """Fit the feature engineering pipeline on training data."""
         
         print(" Fitting feature engineering pipeline...")
-        
-        # Prepare features
+       
         df_processed = self._prepare_features(df)
         
-        # Fit scaler on numeric features
+      
         numeric_data = df_processed[self.numeric_features]
         self.scaler.fit(numeric_data)
         
-        # Fit label encoders for categorical features
+       
         for col in self.categorical_features:
             self.label_encoders[col] = LabelEncoder()
             self.label_encoders[col].fit(df[col])
@@ -73,27 +72,25 @@ class FeatureEngineer:
         if not self.is_fitted:
             raise ValueError("FeatureEngineer must be fitted before transform!")
         
-        # Prepare base features
+     
         df_processed = self._prepare_features(df)
         
-        # Scale numeric features
+      
         numeric_data = df_processed[self.numeric_features]
         numeric_scaled = self.scaler.transform(numeric_data)
         
-        # Encode categorical features
+   
         categorical_encoded = []
         for col in self.categorical_features:
             encoded = self.label_encoders[col].transform(df[col])
             categorical_encoded.append(encoded.reshape(-1, 1))
         categorical_data = np.hstack(categorical_encoded)
         
-        # Get binary features
+       
         binary_data = df_processed[self.binary_features].values
-        
-        # Get derived features
+       
         derived_data = self._create_derived_features(df_processed).values
         
-        # Combine all features
         features = np.hstack([
             numeric_scaled,
             categorical_data,
@@ -211,8 +208,7 @@ class FeatureEngineer:
     def transform_single(self, data: Dict[str, Any]) -> np.ndarray:
         """Transform a single application into features."""
         
-        # Convert single record to DataFrame
+    
         df = pd.DataFrame([data])
         
-        # Apply transformation
         return self.transform(df)

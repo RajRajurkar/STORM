@@ -216,7 +216,7 @@ class UniversalDataAdapter:
         
         print("\n Adapting dataset...")
         
-        # Detect columns
+
         self.detect_columns(df)
         
         # Show summary
@@ -226,10 +226,10 @@ class UniversalDataAdapter:
         if not auto_mode and self.unmapped_columns:
             self.manual_mapping()
         
-        # Create new DataFrame with our expected columns
+     
         adapted_df = pd.DataFrame()
         
-        # Map existing columns
+       
         for target_col, source_col in self.column_mapping.items():
             if source_col in df.columns:
                 adapted_df[target_col] = df[source_col]
@@ -243,23 +243,23 @@ class UniversalDataAdapter:
         # Data cleaning and type conversion
         adapted_df = self._clean_data(adapted_df)
         
-        # Calculate BMI if we have height and weight but no BMI
+    
         if 'bmi' not in adapted_df.columns or adapted_df['bmi'].isna().all():
             if 'height_cm' in adapted_df.columns and 'weight_kg' in adapted_df.columns:
                 height_m = adapted_df['height_cm'] / 100
                 adapted_df['bmi'] = adapted_df['weight_kg'] / (height_m ** 2)
                 adapted_df['bmi'] = adapted_df['bmi'].round(1)
         
-        # Create target variable if not exists
+
         if 'risk_score' not in adapted_df.columns:
             adapted_df['risk_score'] = self._estimate_risk_score(adapted_df)
             print(" Generated risk_score based on available features")
         
-        # Create binary classification target
+
         if 'is_high_risk' not in adapted_df.columns:
             adapted_df['is_high_risk'] = (adapted_df['risk_score'] >= 0.5).astype(int)
         
-        # Create risk category
+   
         adapted_df['risk_category'] = pd.cut(
             adapted_df['risk_score'],
             bins=[0, 0.3, 0.5, 0.7, 1.0],
@@ -288,7 +288,7 @@ class UniversalDataAdapter:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
         
-        # Standardize categorical columns
+       
         if 'gender' in df.columns:
             df['gender'] = df['gender'].str.lower().str.strip()
             df['gender'] = df['gender'].replace({
@@ -318,7 +318,7 @@ class UniversalDataAdapter:
         
         if 'occupation' in df.columns:
             df['occupation'] = df['occupation'].str.lower().str.strip()
-            # Map to our categories
+          
             occupation_map = {
                 'office': 'sedentary', 'desk': 'sedentary', 'it': 'sedentary',
                 'software': 'sedentary', 'admin': 'sedentary', 'manager': 'sedentary',
@@ -332,13 +332,13 @@ class UniversalDataAdapter:
                 df.loc[df['occupation'].str.contains(pattern, na=False), 'occupation'] = category
             df['occupation'] = df['occupation'].fillna('sedentary')
         
-        # Binary columns
+       
         binary_cols = ['regular_checkups', 'gym_membership', 'meditation_practice']
         for col in binary_cols:
             if col in df.columns:
                 df[col] = df[col].apply(lambda x: 1 if str(x).lower() in ['1', 'yes', 'true', 'y'] else 0)
         
-        # Fill remaining NaN values
+        
         for col in df.columns:
             if df[col].dtype in ['float64', 'int64']:
                 df[col] = df[col].fillna(df[col].median())
@@ -377,7 +377,7 @@ class UniversalDataAdapter:
         if 'chronic_conditions' in df.columns:
             risk += 0.13 * (df['chronic_conditions'] / 3).clip(0, 1)
         
-        # Exercise (protective)
+        # Exercise 
         if 'exercise_days_per_week' in df.columns:
             risk -= 0.08 * (df['exercise_days_per_week'] / 7)
         

@@ -11,7 +11,7 @@ const ScenarioSliders = ({ values, onChange }) => {
       step: 0.1,
       category: 'traditional',
       format: (v) => v.toFixed(1),
-      type: 'range'  // ✅ ADD THIS
+      type: 'range'
     },
     {
       key: 'smoking_status',
@@ -75,8 +75,7 @@ const ScenarioSliders = ({ values, onChange }) => {
   const getValue = (key, category) => {
     return values[category]?.[key];
   };
-  
-  // ✅ ADD: Helper to get min/max values for display
+
   const getHealthStatus = (key, value) => {
     if (key === 'bmi') {
       if (value < 18.5) return { text: 'Underweight', color: 'text-yellow-600' };
@@ -154,7 +153,6 @@ const ScenarioSliders = ({ values, onChange }) => {
                 
                 <div className="flex justify-between text-xs text-gray-400">
                   <span>{slider.min}</span>
-                  {/* ✅ ADD: Show healthy range for BMI */}
                   {slider.key === 'bmi' && (
                     <span className="text-green-600 font-medium">
                       Healthy: 18.5-25

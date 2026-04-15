@@ -15,7 +15,7 @@ import { motion } from 'framer-motion';
 import { CHART_COLORS } from '../utils/constants';
 
 const FutureRiskChart = ({ predictions, currentRisk, trend }) => {
-  // Prepare data with current risk as first point
+
   const chartData = [
     { months: 0, risk_score: currentRisk, label: 'Now' },
     ...predictions.map(p => ({
