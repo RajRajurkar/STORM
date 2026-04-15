@@ -47,19 +47,19 @@ class UnderwritingEngine:
         """
         start_time = time.time()
         
-        # Generate application ID
+
         app_id = f"APP-{uuid.uuid4().hex[:8].upper()}"
         
-        # === STEP 1: Risk Assessment ===
+
         risk_result = risk_engine.calculate_risk(application)
         
-        # === STEP 2: Fraud Detection ===
+
         fraud_result = fraud_detector.analyze(application)
         
-        # === STEP 3: STP Decision ===
+
         stp_result = stp_processor.process(application, risk_result, fraud_result)
         
-        # === STEP 4: Premium Calculation (if applicable) ===
+
         premium = None
         if stp_result.decision not in [STPDecision.DECLINE, STPDecision.FRAUD_HOLD]:
             premium = premium_calculator.calculate(
@@ -68,13 +68,12 @@ class UnderwritingEngine:
                 wearable_connected=application.wearable_data_connected
             )
         
-        # === STEP 5: Future Risk Prediction ===
         future_risk = future_predictor.predict(application, risk_result)
         
-        # === STEP 6: Final Decision ===
+
         final_decision = self._determine_final_decision(stp_result, risk_result, fraud_result)
         
-        # === STEP 7: Policy Terms (if approved) ===
+
         policy_terms = None
         if final_decision in ["APPROVED", "APPROVED_WITH_CONDITIONS"]:
             policy_terms = self._generate_policy_terms(risk_result, premium)
@@ -112,7 +111,6 @@ class UnderwritingEngine:
         if stp_result.decision == STPDecision.AUTO_APPROVE:
             return "APPROVED"
         
-        # For review cases, provide preliminary recommendation
         if risk_result.risk_score < 0.5:
             return "APPROVED_WITH_CONDITIONS"
         elif risk_result.risk_score < 0.7:
@@ -134,7 +132,6 @@ class UnderwritingEngine:
             "waiting_period_days": 30
         }
         
-        # Adjust based on risk
         if risk_result.risk_score > 0.5:
             base_terms["waiting_period_days"] = 60
             base_terms["exclusions"] = ["Pre-existing conditions for 12 months"]
@@ -149,6 +146,4 @@ class UnderwritingEngine:
         
         return base_terms
 
-
-# Singleton instance
 underwriting_engine = UnderwritingEngine()

@@ -12,12 +12,11 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { hasApplication, applicationResult } = useApplication(); // ✅ ADD
 
-  // ✅ Calculate risk percentage if available
+  
   const riskPercentage = hasApplication && applicationResult?.risk_assessment 
     ? (applicationResult.risk_assessment.risk_score * 100).toFixed(0)
     : null;
 
-  // ✅ Get risk color
   const getRiskColor = () => {
     if (!hasApplication || !applicationResult) return null;
     const score = applicationResult.risk_assessment.risk_score;
@@ -81,7 +80,7 @@ export default function Navbar() {
           </motion.div>
         </motion.div>
 
-        {/* Links */}
+   
         <div className="hidden md:flex gap-10 text-gray-400 font-medium">
           {["Features", "Architecture", "How it Works", "Impact"].map((item, index) => {
 
@@ -124,10 +123,9 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Buttons */}
         <div className="flex items-center gap-3">
 
-          {/* ✅ Assessment Status Indicator (NEW) */}
+       
           {hasApplication && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -152,7 +150,6 @@ export default function Navbar() {
             </motion.div>
           )}
 
-          {/* Login - Hidden if user has assessment */}
           {!hasApplication && (
             <motion.button
               initial={{ opacity: 0, x: 20 }}
@@ -175,7 +172,6 @@ export default function Navbar() {
             </motion.button>
           )}
 
-          {/* ✅ Launch App / View Dashboard (Dynamic) */}
           <motion.button
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -199,7 +195,6 @@ export default function Navbar() {
                 <Activity className="w-4 h-4 text-white" />
               </motion.div>
               
-              {/* ✅ Dynamic button text */}
               <span>
                 {hasApplication ? "View Dashboard" : "Get Started"}
               </span>
@@ -214,7 +209,6 @@ export default function Navbar() {
             </div>
           </motion.button>
 
-          {/* ✅ Quick Access to Chat/Simulator (if assessment exists) */}
           {hasApplication && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -253,7 +247,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Animated border */}
       <motion.div
         className="h-px bg-gradient-to-r from-transparent via-primary-500/50 to-transparent"
         animate={{ backgroundPosition: ["200% 0", "-200% 0"] }}

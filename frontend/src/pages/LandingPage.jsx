@@ -195,7 +195,7 @@
             </div>
         </div>
 
-        {/* CORE */}
+
         <div className="text-center mt-32 px-4">
             <div className="inline-block px-4 py-2 bg-indigo-500/10 text-indigo-400 rounded-full mb-6">
             ✦ Core Capabilities
@@ -209,7 +209,7 @@
             </h2>
         </div>
 
-        {/* FEATURES */}
+
         <motion.div
             initial="hidden"
             whileInView="visible"

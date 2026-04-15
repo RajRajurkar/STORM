@@ -123,7 +123,7 @@ const NewApplication = () => {
         </p>
       </motion.div>
 
-      {/* Progress Steps */}
+    
       <div className="mb-8">
         <div className="flex items-center justify-between">
           {steps.map((step, index) => {
@@ -189,7 +189,6 @@ const NewApplication = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation Buttons */}
         <div className="flex justify-between mt-8 pt-6 border-t border-gray-100">
           <button
             onClick={prevStep}

@@ -20,7 +20,7 @@ from core.explainer import explainer
 router = APIRouter(prefix="/api/v1", tags=["Underwriting"])
 
 
-# ============== MAIN ENDPOINTS ==============
+
 
 @router.post("/underwrite", response_model=UnderwritingDecision)
 async def process_application(application: ApplicationInput):
@@ -146,7 +146,7 @@ async def get_analytics_summary():
     
     Returns STP rates, processing times, and risk distribution.
     """
-    # Simulated analytics data (in production, this would come from a database)
+    # Simulated analytics data
     return AnalyticsSummary(
         total_applications=random.randint(140, 160),
         stp_rate=round(random.uniform(65, 72), 1),
@@ -179,7 +179,7 @@ async def health_check():
     }
 
 
-# ============== HELPER FUNCTIONS ==============
+# HELPER FUNCTIONS 
 
 def _apply_modifications(
     base_app: ApplicationInput, 
@@ -187,16 +187,16 @@ def _apply_modifications(
 ) -> ApplicationInput:
     """Apply modifications to create a new application for simulation."""
     
-    # Create copies of the data
+    
     app_dict = base_app.model_dump()
     
-    # Apply traditional data modifications
+    
     if "traditional" in modifications:
         for key, value in modifications["traditional"].items():
             if key in app_dict["traditional_data"]:
                 app_dict["traditional_data"][key] = value
     
-    # Apply alternative data modifications
+    
     if "alternative" in modifications and app_dict.get("alternative_data"):
         for key, value in modifications["alternative"].items():
             if key in app_dict["alternative_data"]:

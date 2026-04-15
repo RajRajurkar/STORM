@@ -27,11 +27,11 @@ class Explainer:
         Generate comprehensive risk score explanation.
         """
         
-        # Separate positive and negative contributors
+        
         positive = [c for c in risk_result.contributions if c.contribution > 0]
         negative = [c for c in risk_result.contributions if c.contribution < 0]
         
-        # Build visual breakdown
+        
         visual_breakdown = []
         for contrib in risk_result.contributions[:8]:  # Top 8 factors
             bar_length = int(abs(contrib.contribution) * 100)
@@ -43,10 +43,10 @@ class Explainer:
                 "direction": "increase" if contrib.contribution > 0 else "decrease"
             })
         
-        # Build summary text
+       
         summary = self._build_summary_text(risk_result, positive, negative)
         
-        # Build recommendations
+        
         recommendations = self._build_recommendations(positive)
         
         return {
@@ -74,7 +74,7 @@ class Explainer:
         
         decision = stp_result.decision
         
-        # Build decision reasoning
+        
         reasoning = []
         
         if decision == STPDecision.AUTO_APPROVE:

@@ -75,7 +75,6 @@ const Analytics = () => {
     );
   }
   
-  // Prepare chart data
   const decisionData = [
     { name: 'Auto-Approved', value: analytics.auto_approved, color: '#22C55E' },
     { name: 'Quick Review', value: analytics.quick_review, color: '#F59E0B' },
@@ -153,9 +152,8 @@ const Analytics = () => {
         />
       </div>
       
-      {/* Charts Row 1 */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Decision Distribution Pie */}
         <motion.div
           className="glass-card p-6"
           initial={{ opacity: 0, y: 20 }}
@@ -192,8 +190,7 @@ const Analytics = () => {
             </ResponsiveContainer>
           </div>
         </motion.div>
-        
-        {/* Risk Distribution */}
+      
         <motion.div
           className="glass-card p-6"
           initial={{ opacity: 0, y: 20 }}
@@ -225,7 +222,6 @@ const Analytics = () => {
         </motion.div>
       </div>
       
-      {/* Application Timeline */}
       <motion.div
         className="glass-card p-6"
         initial={{ opacity: 0, y: 20 }}
@@ -254,14 +250,12 @@ const Analytics = () => {
         </div>
       </motion.div>
       
-      {/* Performance Metrics */}
       <motion.div
         className="grid grid-cols-1 md:grid-cols-3 gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
       >
-        {/* Processing Efficiency */}
         <div className="glass-card p-6">
           <h3 className="text-sm font-medium text-gray-500 mb-4">Processing Efficiency</h3>
           <div className="space-y-4">
@@ -349,8 +343,7 @@ const Analytics = () => {
             </div>
           </div>
         </div>
-        
-        {/* Model Performance */}
+
         <div className="glass-card p-6">
           <h3 className="text-sm font-medium text-gray-500 mb-4">Model Performance</h3>
           <div className="space-y-6">

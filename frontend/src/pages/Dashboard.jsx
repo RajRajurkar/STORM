@@ -17,7 +17,7 @@ import {
 import StatsCard from "../components/StatsCard";
 import { getAnalyticsSummary } from "../utils/api";
 
-// Animation variants
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -110,7 +110,6 @@ const shimmerVariants = {
   },
 };
 
-// Animated Number Component
 const AnimatedNumber = ({ value, suffix = "", prefix = "" }) => {
   const [displayValue, setDisplayValue] = useState(0);
 
@@ -189,7 +188,6 @@ const BackgroundOrbs = () => {
   );
 };
 
-// Loading Skeleton
 const LoadingSkeleton = () => (
   <motion.div
     className="flex flex-col items-center justify-center h-64 gap-4"
@@ -237,7 +235,7 @@ const LoadingSkeleton = () => (
   </motion.div>
 );
 
-// Progress Bar Component
+
 const AnimatedProgressBar = ({ value, total, color, delay }) => {
   const percentage = (value / total) * 100;
 
@@ -391,7 +389,6 @@ const Dashboard = () => {
         </motion.div>
       </motion.div>
 
-      {/* Stats Grid */}
       <motion.div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         variants={containerVariants}
@@ -442,15 +439,14 @@ const Dashboard = () => {
         ))}
       </motion.div>
 
-      {/* Main Content Grid */}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* STP Breakdown */}
+
         <motion.div
           className="lg:col-span-2 glass-card p-6 relative overflow-hidden"
           variants={itemVariants}
           whileHover={cardHoverVariants.hover}
         >
-          {/* Animated corner accent */}
           <motion.div
             className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/10 to-transparent rounded-bl-full"
             animate={{
@@ -517,7 +513,6 @@ const Dashboard = () => {
               </div>
             </motion.div>
 
-            {/* Quick Review */}
             <motion.div
               className="flex items-center gap-4"
               variants={itemVariants}
@@ -558,7 +553,6 @@ const Dashboard = () => {
               </div>
             </motion.div>
 
-            {/* Manual Review */}
             <motion.div
               className="flex items-center gap-4"
               variants={itemVariants}
@@ -650,7 +644,6 @@ const Dashboard = () => {
             </motion.div>
           </motion.div>
 
-          {/* Summary Stats */}
           <motion.div
             className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-gray-100"
             initial={{ opacity: 0, y: 20 }}
@@ -699,7 +692,6 @@ const Dashboard = () => {
           </motion.div>
         </motion.div>
 
-        {/* Quick Actions */}
         <motion.div
           className="glass-card p-6 relative overflow-hidden"
           variants={itemVariants}
@@ -803,7 +795,6 @@ const Dashboard = () => {
             ))}
           </motion.div>
 
-          {/* Risk Distribution Mini Chart */}
           <motion.div
             className="mt-6 pt-6 border-t border-gray-100"
             initial={{ opacity: 0 }}

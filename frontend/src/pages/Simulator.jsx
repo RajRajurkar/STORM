@@ -34,10 +34,10 @@ const Simulator = () => {
   const [simulatedResult, setSimulatedResult] = useState(null);
   const [loading, setLoading] = useState(false);
   
-  // Load original risk on mount
+
   useEffect(() => {
     if (hasApplication && applicationResult) {
-      // ✅ USE EXISTING RESULT
+      
       const result = {
         risk_score: applicationResult.risk_assessment.risk_score,
         risk_category: applicationResult.risk_assessment.risk_category,
@@ -48,12 +48,12 @@ const Simulator = () => {
       setOriginalResult(result);
       setSimulatedResult(result);
     } else {
-      // ✅ CALCULATE FOR DEFAULT
+      
       loadOriginalRisk();
     }
   }, [hasApplication, applicationResult]);
   
-  // Simulate on modification changes
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       if (Object.keys(modifications.traditional).length > 0 || 
@@ -125,7 +125,7 @@ const Simulator = () => {
     const baseTraditional = baseApplication.traditional_data;
     const baseAlternative = baseApplication.alternative_data;
     
-    // Smoking
+   
     if (mods.traditional?.smoking_status) {
       const baseSmoking = baseTraditional.smoking_status;
       if (baseSmoking === 'never' && mods.traditional.smoking_status === 'current') change += 0.15;
@@ -134,7 +134,7 @@ const Simulator = () => {
       else if (baseSmoking === 'current' && mods.traditional.smoking_status === 'former') change -= 0.10;
     }
     
-    // BMI - ✅ FIXED
+    
     if (mods.traditional?.bmi !== undefined) {
       const baseBMI = baseTraditional.weight_kg / ((baseTraditional.height_cm / 100) ** 2);
       const bmiDiff = mods.traditional.bmi - baseBMI;
@@ -147,23 +147,23 @@ const Simulator = () => {
         change += 0.10; // Underweight
       }
       
-      // Additional change based on difference
+    
       change += bmiDiff * 0.01;
     }
     
-    // Previous Claims
+  
     if (mods.traditional?.previous_claims !== undefined) {
       const diff = mods.traditional.previous_claims - baseTraditional.previous_claims;
       change += diff * 0.03;
     }
     
-    // Chronic Conditions
+
     if (mods.traditional?.chronic_conditions !== undefined) {
       const diff = mods.traditional.chronic_conditions - baseTraditional.chronic_conditions;
       change += diff * 0.04;
     }
     
-    // Exercise - ✅ FIXED
+   
     if (mods.alternative?.exercise_days_per_week !== undefined) {
       const baseDays = baseAlternative?.exercise_days_per_week || 3;
       const diff = mods.alternative.exercise_days_per_week - baseDays;
@@ -207,7 +207,7 @@ const Simulator = () => {
     ? (riskChange / originalResult.risk_score) * 100 
     : 0;
 
-  // ✅ SHOW MESSAGE IF NO APPLICATION
+  
   if (!hasApplication) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
@@ -305,14 +305,14 @@ const Simulator = () => {
           />
         </motion.div>
         
-        {/* Results Panel - Same as before */}
+        
         <motion.div
           className="lg:col-span-2 space-y-6"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
         >
-          {/* Risk Comparison */}
+          
           <div className="glass-card p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-6">Risk Impact</h2>
             
@@ -358,7 +358,7 @@ const Simulator = () => {
                 )}
               </div>
               
-              {/* Simulated Risk */}
+              
               <div className="text-center">
                 <p className="text-sm text-gray-500 mb-2">Simulated</p>
                 {simulatedResult && (
@@ -396,7 +396,7 @@ const Simulator = () => {
               </div>
             </div>
             
-            {/* Recommendation */}
+           
             {simulatedResult?.recommendation && (
               <div className={`p-4 rounded-xl border ${
                 riskChange > 0 
@@ -418,7 +418,7 @@ const Simulator = () => {
             )}
           </div>
           
-          {/* Modified Factors Summary */}
+         
           {(Object.keys(modifications.traditional).length > 0 || 
             Object.keys(modifications.alternative).length > 0) && (
             <div className="glass-card p-6">

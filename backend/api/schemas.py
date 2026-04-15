@@ -23,11 +23,11 @@ class AlcoholConsumption(str, Enum):
 
 
 class OccupationType(str, Enum):
-    SEDENTARY = "sedentary"          # Office work
-    LIGHT = "light"                   # Teaching, retail
-    MODERATE = "moderate"             # Healthcare, trades
-    HEAVY = "heavy"                   # Construction, mining
-    HAZARDOUS = "hazardous"           # Military, firefighting
+    SEDENTARY = "sedentary"          
+    LIGHT = "light"                   
+    MODERATE = "moderate"            
+    HEAVY = "heavy"                   
+    HAZARDOUS = "hazardous"           
 
 
 class RiskCategory(str, Enum):
@@ -78,24 +78,24 @@ class TraditionalData(BaseModel):
 class AlternativeData(BaseModel):
     """Alternative data sources (wearables, lifestyle, behavioral)."""
     
-    # Wearable Device Data (simulated)
+   
     daily_steps_avg: int = Field(5000, ge=0, le=30000, description="Average daily steps")
     resting_heart_rate: int = Field(70, ge=40, le=120, description="Resting heart rate BPM")
     sleep_hours_avg: float = Field(7.0, ge=3, le=12, description="Average sleep hours")
     active_minutes_daily: int = Field(30, ge=0, le=300, description="Active minutes per day")
     
-    # Lifestyle Indicators
+   
     exercise_days_per_week: int = Field(3, ge=0, le=7, description="Exercise days per week")
     diet_quality_score: int = Field(5, ge=1, le=10, description="Diet quality 1-10")
     stress_level: int = Field(5, ge=1, le=10, description="Stress level 1-10")
     work_life_balance: int = Field(5, ge=1, le=10, description="Work-life balance 1-10")
     
-    # Behavioral Indicators
+    
     regular_checkups: bool = Field(True, description="Regular health checkups")
     gym_membership: bool = Field(False, description="Active gym membership")
     meditation_practice: bool = Field(False, description="Regular meditation")
     
-    # Environmental
+    
     location_risk_score: int = Field(5, ge=1, le=10, description="Location health risk 1-10")
     air_quality_score: int = Field(7, ge=1, le=10, description="Air quality score 1-10")
 
@@ -167,9 +167,9 @@ class RiskContribution(BaseModel):
     factor: str
     display_name: str
     value: Any
-    contribution: float  # Positive = increases risk, Negative = decreases
+    contribution: float 
     percentage: float
-    category: str  # "positive" (increases risk) or "negative" (decreases risk)
+    category: str  
 
 
 class FraudIndicator(BaseModel):
@@ -212,7 +212,7 @@ class STPResult(BaseModel):
     
     # Timing
     processing_time_ms: float
-    is_instant: bool  # True if auto-processed
+    is_instant: bool  
     
     # Routing
     requires_review: bool
@@ -224,12 +224,12 @@ class PremiumResult(BaseModel):
     """Premium calculation result."""
     
     base_premium: float
-    risk_loading: float  # Additional premium due to risk
-    discount: float  # Discounts applied
+    risk_loading: float  
+    discount: float  
     final_premium: float
     
     premium_breakdown: Dict[str, float]
-    payment_options: Dict[str, float]  # Monthly, quarterly, annual
+    payment_options: Dict[str, float]  
 
 
 class FutureRiskPrediction(BaseModel):
@@ -258,7 +258,7 @@ class UnderwritingDecision(BaseModel):
     # STP Decision
     stp_result: STPResult
     
-    # Premium (if approved)
+    # Premium
     premium: Optional[PremiumResult] = None
     
     # Future Prediction
@@ -294,7 +294,7 @@ class AnalyticsSummary(BaseModel):
     
     # STP Metrics
     total_applications: int
-    stp_rate: float  # Percentage auto-processed
+    stp_rate: float  
     auto_approved: int
     quick_review: int
     manual_review: int

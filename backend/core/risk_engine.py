@@ -45,7 +45,6 @@ class RiskEngine:
         self.weights = RISK_WEIGHTS
         self.categories = RISK_CATEGORIES
     
-        # Initialize ML model if available
         self.ml_model = None
         if ML_AVAILABLE:
             try:
@@ -69,36 +68,31 @@ class RiskEngine:
         traditional = application.traditional_data
         alternative = application.alternative_data or self._default_alternative_data()
         
-        # === ML PREDICTION ===
         if self.ml_model and self.ml_model.is_loaded:
             ml_result = self._get_ml_prediction(application)
             risk_score = ml_result['risk_score']
             confidence = ml_result['confidence']
             ml_contributions = ml_result.get('contributions', [])
         else:
-            # Fallback to rule-based
             ml_result = None
             risk_score = self._calculate_rule_based_score(traditional, alternative)
             confidence = 0.75
             ml_contributions = []
         
-        # === DOMAIN ADJUSTMENTS ===
-        # Apply business rules and constraints
+       
         risk_score = self._apply_business_rules(risk_score, traditional, alternative)
         
-        # === EXPLAINABILITY ===
-        # Calculate factor contributions for transparency
+      
         factor_scores = self._calculate_factor_scores(traditional, alternative)
         contributions = self._calculate_contributions(factor_scores, risk_score)
         
-        # Merge ML contributions if available
+     
         if ml_contributions:
             contributions = self._merge_contributions(contributions, ml_contributions)
         
-        # === CATEGORIZATION ===
+        
         risk_category, risk_label = self._get_risk_category(risk_score)
         
-        # === EXPLANATION ===
         explanation = self._generate_explanation(
             risk_score, 
             risk_category, 
@@ -107,7 +101,7 @@ class RiskEngine:
             ml_result is not None
         )
         
-        # Get top factors
+    
         top_risk = [c.display_name for c in contributions if c.contribution > 0][:3]
         top_protective = [c.display_name for c in contributions if c.contribution < 0][:3]
         

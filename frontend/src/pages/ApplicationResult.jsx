@@ -81,7 +81,7 @@ const ApplicationResult = () => {
         </button>
       </motion.div>
 
-      {/* STP Status Banner */}
+    
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -94,9 +94,8 @@ const ApplicationResult = () => {
         />
       </motion.div>
 
-      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Risk Score */}
+       
         <motion.div
           className="glass-card p-6 flex flex-col items-center"
           initial={{ opacity: 0, y: 20 }}
@@ -119,7 +118,6 @@ const ApplicationResult = () => {
           </div>
         </motion.div>
 
-        {/* Decision & Premium */}
         <motion.div
           className="lg:col-span-2 glass-card p-6"
           initial={{ opacity: 0, y: 20 }}

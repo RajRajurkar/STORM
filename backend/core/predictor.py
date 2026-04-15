@@ -37,7 +37,7 @@ class FutureRiskPredictor:
         predictions = []
         
         for months in self.time_horizons:
-            # Base progression (age effect)
+            # Base progression
             age_factor = self._calculate_age_progression(
                 traditional.age, 
                 months
@@ -91,13 +91,13 @@ class FutureRiskPredictor:
         """Calculate risk increase due to aging."""
         years = months / 12
         
-        # Risk increases faster after 50
+        
         if current_age > 50:
-            return years * 0.015  # 1.5% per year
+            return years * 0.015  
         elif current_age > 40:
-            return years * 0.008  # 0.8% per year
+            return years * 0.008  
         else:
-            return years * 0.003  # 0.3% per year
+            return years * 0.003  
     
     def _calculate_lifestyle_trend(self, alternative, months: int) -> float:
         """Calculate risk change based on lifestyle factors."""
@@ -106,26 +106,26 @@ class FutureRiskPredictor:
         
         years = months / 12
         
-        # Good lifestyle = slight improvement
+        
         if (alternative.exercise_days_per_week >= 4 and 
             alternative.diet_quality_score >= 7):
-            return -years * 0.02  # Improve 2% per year
+            return -years * 0.02  
         
-        # Poor lifestyle = decline
+      
         if (alternative.exercise_days_per_week <= 1 and 
             alternative.stress_level >= 7):
-            return years * 0.03  # Worsen 3% per year
+            return years * 0.03  
         
-        return years * 0.005  # Slight natural increase
+        return years * 0.005  
     
     def _calculate_claims_trend(self, previous_claims: int, months: int) -> float:
         """Calculate expected claims impact."""
         years = months / 12
         
         if previous_claims >= 3:
-            return years * 0.02  # History suggests more claims
+            return years * 0.02  
         elif previous_claims == 0:
-            return -years * 0.005  # Good history
+            return -years * 0.005  
         
         return 0.0
     
@@ -147,7 +147,7 @@ class FutureRiskPredictor:
     
     def _calculate_trend_confidence(self, predictions: List[Dict]) -> float:
         """Calculate confidence in trend prediction."""
-        # Average of individual confidences
+      
         return round(np.mean([p["confidence"] for p in predictions]), 2)
     
     def _generate_warning(
@@ -158,7 +158,7 @@ class FutureRiskPredictor:
     ) -> str:
         """Generate warning message if risk trajectory is concerning."""
         
-        # Find when risk crosses high threshold
+       
         for pred in predictions:
             if current < 0.7 and pred["risk_score"] >= 0.7:
                 return (
@@ -166,7 +166,7 @@ class FutureRiskPredictor:
                     f"HIGH RISK category in approximately {pred['months']} months."
                 )
         
-        # Age-specific warnings
+      
         if traditional.age > 55 and predictions[-1]["risk_score"] > 0.6:
             return (
                 "Note: Age-related factors may accelerate risk increase. "
@@ -200,5 +200,5 @@ class FutureRiskPredictor:
             )
 
 
-# Singleton instance
+
 future_predictor = FutureRiskPredictor()

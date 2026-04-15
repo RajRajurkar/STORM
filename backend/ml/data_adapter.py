@@ -57,7 +57,7 @@ class UniversalDataAdapter:
         # Environmental
         'location_risk_score': ['location_risk_score', 'location_risk', 'area_risk', 'region_risk'],
         
-        # Target (if available)
+        # Target
         'risk_score': ['risk_score', 'risk', 'risk_level', 'Risk', 'RISK', 'target', 'label'],
         'claim_approved': ['claim_approved', 'approved', 'claim_status', 'is_approved', 'outcome']
     }
