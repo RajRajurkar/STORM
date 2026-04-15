@@ -20,7 +20,6 @@ class RiskAgent:
         self.base_url = os.getenv("GROK_API_URL", "https://api.x.ai/v1")
         self.model = os.getenv("GROK_MODEL", "grok-beta")
         
-        # System prompt for the risk agent
         self.system_prompt = """You are LiveRisk AI, an intelligent health insurance risk assessment assistant. 
 
 Your capabilities:
@@ -216,7 +215,7 @@ Current Risk Assessment:
                     chronic_impact = min(chronic * 4, 20)
                     factors.append(f"🏥 **Chronic Conditions** ({chronic} condition{'s' if chronic > 1 else ''}) - Each chronic condition adds ~4% to risk. Your {chronic} condition{'s' if chronic > 1 else ''} contribute approximately {chronic_impact}%.")
                 
-                # Exercise (protective)
+                # Exercise
                 exercise = user_profile.get('exercise_days', 0)
                 if exercise >= 4:
                     factors.append(f"✅ **Regular Exercise** ({exercise} days/week) - Great! This is working in your favor, reducing risk by approximately {exercise * 1.5:.0f}%.")
@@ -238,7 +237,7 @@ Current Risk Assessment:
                     "The main factors include age, BMI, smoking status, and health history. "
                     "Would you like me to explain any specific factor in detail?")
         
-        # Handle "improve/reduce" questions
+        # Handle "improve/reduce"
         if any(word in message_lower for word in ['improve', 'reduce', 'lower', 'better', 'decrease', 'help']):
             suggestions = ["Here's how you can improve your risk score:\n"]
             
